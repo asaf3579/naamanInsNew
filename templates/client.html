@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"> <!-- Meta tag specifying UTF-8 encoding -->
+    <title>Client Page</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #4267B2; /* Blue background color like Facebook */
+            padding: 20px;
+            text-align: center;
+            position: relative; /* Added position relative */
+        }
+
+        h1 {
+            color: #fff;
+            margin: 0;
+        }
+
+        .form-group {
+            background-color: #fff;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Added styles for the logout button container */
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-container input[type="submit"] {
+            background-color: #f44336; /* Red color for the logout button */
+            float: right; /* Align the button to the right */
+        }
+
+        /* Added styles for the success message container */
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Added styles for the sales summary box */
+        .sales-summary {
+            background-color: #f2f2f2;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 999;
+            transition: all 0.5s ease-in-out; /* Added transition for animation */
+            transform: scale(1); /* Initial scale */
+        }
+
+        .sales-summary.animate {
+            transform: scale(1.1); /* Scale up the box on animation */
+        }
+
+    </style>
+
+    <script>
+        function showSuccessMessage() {
+            var successMessage = document.getElementById("success-message");
+            successMessage.style.display = "block";
+            setTimeout(function() {
+                successMessage.style.display = "none";
+            }, 3000); // Hide the message after 3 seconds (adjust the time as needed)
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>נעמן סוכנות לביטוח</h1>
+
+        <div class="logout-container">
+            <form action="/logout" method="post">
+                <div class="form-group">
+                    <input type="submit" value="Logout">
+                </div>
+            </form>
+        </div>
+    </div>
+    <form action="/submit_data" method="post" onsubmit="showSuccessMessage()">
+        <div class="form-group">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" required><br><br>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" required><br><br>
+            <label for="insurance_type">Insurance Type:</label>
+            <select id="insurance_type" name="insurance_type" required>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            </select><br><br>
+            <input type="submit" value="Send">
+        </div>
+    </form>
+
+    <!-- Sales summary box -->
+    <div class="sales-summary">
+        <h2>Sales Summary</h2>
+        <p>Total Sales: <span id="total-sales"></span></p>
+    </div>
+
+    {% if success_message %}
+    <div class="success-message">
+        {{ success_message }}
+    </div>
+    {% endif %}
+
+    <script>
+        // Function to hide the success message after a specific duration (in milliseconds)
+        function hideSuccessMessage() {
+            var successMessage = document.querySelector('.success-message');
+            if (successMessage) {
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 5000); // 5000 milliseconds = 5 seconds
+            }
+        }
+
+        // Function to retrieve the sum of the client's sales
+        function getSalesTotal() {
+            fetch("/get_sales_total")
+                .then(response => response.json())
+                .then(data => {
+                    var sumPrice = data.sumPrice;
+                    var totalSalesElement = document.getElementById("total-sales");
+                    var currentTotal = parseInt(totalSalesElement.textContent) || 0;
+                    animateSalesTotal(currentTotal, sumPrice);
+                })
+                .catch(error => {
+                    console.log("Error retrieving sales total:", error);
+                });
+        }
+
+        // Function to animate the sales total
+        function animateSalesTotal(start, end) {
+            var totalSalesElement = document.getElementById("total-sales");
+            var increment = Math.ceil((end - start) / 20); // Increment value for each step of the animation
+            var count = start;
+
+            var animationInterval = setInterval(function() {
+                count += increment;
+                totalSalesElement.textContent = count;
+
+                if (count >= end) {
+                    totalSalesElement.textContent = end;
+                    clearInterval(animationInterval);
+                }
+            }, 100); // Animation interval duration in milliseconds
+        }
+
+        // Call the function to hide the success message
+        hideSuccessMessage();
+
+        // Call the function to retrieve the sales total on page load
+        getSalesTotal();
+
+    </script>
+</body>
+</html>
