@@ -1,4 +1,5 @@
 from functools import wraps
+import os
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
@@ -6,7 +7,7 @@ from dbHandler import DBHandler
 import json
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'  # Set a secret key for session management
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key')
 
 db_handler = DBHandler(host="dpg-ci2aokak728i8t8mp4gg-a.oregon-postgres.render.com", port=5432, dbname="naamanins", user="naaman", password='EOeDYpXWHy88yJKnILlZlBe2IeUqdoCi')
 db_handler.connect()
@@ -112,4 +113,4 @@ def show_success_message():
 
 if __name__ == '__main__':
 
-    app.run()
+    app.run(host='0.0.0.0', port=8000)
