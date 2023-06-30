@@ -112,5 +112,5 @@ def show_success_message():
     return render_template('client.html', email=email, success_message=success_message)
 
 if __name__ == '__main__':
-
+    # app.run()
     app.run(host='0.0.0.0', port=8000)
